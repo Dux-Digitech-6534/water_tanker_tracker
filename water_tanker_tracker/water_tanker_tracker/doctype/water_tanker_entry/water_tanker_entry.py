@@ -16,7 +16,6 @@ class WaterTankerEntry(Document):
 		self.require_evidence()
 		self.check_quantities()
 		self.set_status()
-		self.guard_closed()
 
 	def set_arrival(self):
 		if self.is_new():
@@ -64,8 +63,3 @@ class WaterTankerEntry(Document):
 		"""A new entry is Inspected as soon as the tank level has been checked; closing is done by hand."""
 		if self.is_new() and (self.status or "Draft") == "Draft" and self.tank_level_check != "Not Checked":
 			self.status = "Inspected"
-
-	def guard_closed(self):
-		before = self.get_doc_before_save()
-		if before and before.status == "Closed":
-			frappe.throw(_("A closed entry cannot be changed"))

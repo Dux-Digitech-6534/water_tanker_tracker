@@ -234,10 +234,9 @@
    "default": "Draft",
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Status",
-   "options": "Draft\nInspected\nClosed"
+   "options": "Draft\nInspected\nClosed",
+   "hidden": 1
   },
   {
    "fieldname": "created_by",
@@ -259,7 +258,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-10 08:21:06.292229",
+ "modified": "2026-10-10 11:07:59.576879",
  "modified_by": "Administrator",
  "module": "Water Tanker Tracker",
  "name": "Water Tanker Entry",
@@ -284,6 +283,18 @@
    "report": 1,
    "role": "Water Tanker User",
    "write": 1
+  },
+  {
+   "role": "Water Tanker Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
   }
  ],
  "search_fields": "vehicle_number,water_supplier",

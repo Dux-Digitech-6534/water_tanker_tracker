@@ -9,7 +9,6 @@ const WT_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAClCAMAAACz6
 const TITLES = { dashboard: "Dashboard", register: "Water Tanker Register", entry: "New Water Tanker Entry", report: "Water Tanker Report", suppliers: "Water Suppliers", vehicles: "Water Tanker Vehicles" };
 const LEVELS = ["Full", "Partial", "Low", "Not Checked"];
 const LEVEL_TONE = { Full: "teal", Partial: "amber", Low: "red", "Not Checked": "" };
-const STATUS_TONE = { Draft: "", Inspected: "teal", Closed: "amber" };
 // WhatsApp sharing is switched off for now (no API, so it is a manual step). Set to true to bring the buttons back.
 const SHOW_WHATSAPP = false;
 const GPS_FRESH_MS = 30000; // a position older than this, at the moment of the shutter, is not used
@@ -63,6 +62,8 @@ const ICONS = {
 	chev: svg('<path d="M6 9l6 6 6-6"/>'),
 	printer: svg('<path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>'),
 	file: svg('<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>'),
+	edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/>'),
+	trash: svg('<path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/>'),
 	download: svg('<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>'),
 };
 
@@ -108,6 +109,14 @@ background:var(--wt-bg);border-radius:0;padding:0}
 .wt-act button{min-height:32px;min-width:32px;padding:0 10px;border:1px solid var(--wt-border);border-radius:9px;background:var(--wt-panel);color:var(--wt-text);font-size:12px;font-weight:600;cursor:pointer}
 .wt-act button:hover{border-color:var(--wt-primary);color:var(--wt-primary)}
 .wt-act button.danger:hover{border-color:var(--wt-red);color:var(--wt-red)}
+.wt-act button[data-row-edit],.wt-act button[data-row-del],.wt-act button[data-row-dl]{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.wt-act button[data-row-del]{color:var(--wt-red)}
+.wt-act button .wt-ic{width:16px;height:16px}
+.wt-e-shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.wt-e-shot img,.wt-e-noshot{display:block;width:100%;height:200px;object-fit:cover;border:1px solid var(--wt-border);border-radius:10px;margin:6px 0 4px}
+.wt-e-noshot{display:flex;align-items:center;justify-content:center;color:var(--wt-muted);font-size:12px;background:var(--wt-panel)}
+.wt-e-shot-meta{display:block;min-height:16px;color:var(--wt-muted);font-size:11px;margin-bottom:6px}
+.wt-btn-ghost.wt-d-delete{color:var(--wt-red)}.wt-btn-ghost.wt-d-delete:hover{border-color:var(--wt-red);background:var(--wt-red-soft)}
 .wt-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer}
 .wt-check input{width:16px;height:16px;margin:0;accent-color:var(--wt-primary)}
 .wt-wrap{white-space:normal;min-width:170px;max-width:280px}
@@ -322,7 +331,7 @@ class WaterTankerApp {
 		this.rows = [];
 		this.total = 0;
 		this.filter = { search: "", level: "", supplier: "", from_date: frappe.datetime.get_today(), to_date: frappe.datetime.get_today() }; // the register's filters (today by default)
-		this.admin = frappe.user.has_role("System Manager"); // settings (the masters) are for administrators
+		this.admin = frappe.user.has_role("System Manager") || frappe.user.has_role("Water Tanker Manager"); // settings (the masters) are for administrators
 		this.rep = { search: "", level: "", supplier: "", from_date: frappe.datetime.month_start(), to_date: frappe.datetime.get_today() }; // the report's filters
 		this.report = null; // what the report on screen shows
 		this.masters = { suppliers: [], vehicles: [], uoms: null };
@@ -478,7 +487,7 @@ class WaterTankerApp {
 				<label class="wt-field">${__("To date")}<input type="date" class="wt-reg-to"></label>
 				<button type="button" class="wt-btn-ghost wt-reg-clear">${__("Clear")}</button>
 			</div></div>
-			<div class="wt-table-wrap"><table class="wt-table wt-reg"><thead><tr><th>${__("Date & Time")}</th><th>${__("Vehicle Number")}</th><th>${__("Water Supplier")}</th><th>${__("Tank Level")}</th><th>${__("Photo")}</th><th>${__("GPS Location")}</th></tr></thead><tbody data-register></tbody></table></div>
+			<div class="wt-table-wrap"><table class="wt-table wt-reg"><thead><tr><th>${__("Date & Time")}</th><th>${__("Vehicle Number")}</th><th>${__("Water Supplier")}</th><th>${__("Tank Level")}</th><th>${__("Photo")}</th><th>${__("GPS Location")}</th><th>${__("Actions")}</th></tr></thead><tbody data-register></tbody></table></div>
 			<div class="wt-more"><span class="wt-count"></span><button type="button" class="wt-btn-ghost wt-btn-sm wt-load-more" hidden>${__("Load more")}</button></div>`;
 	}
 
@@ -537,6 +546,21 @@ class WaterTankerApp {
 		root.on("click", "tr[data-name]", (e) => {
 			if ($(e.target).closest("a,button").length) return;
 			this.detail($(e.currentTarget).data("name"));
+		});
+		root.on("click", "[data-row-edit]", (e) => this.detail($(e.currentTarget).attr("data-row-edit"), true));
+		root.on("click", "[data-row-del]", (e) => this.deleteEntry($(e.currentTarget).attr("data-row-del")));
+		root.on("click", "[data-row-dl]", async (e) => {
+			const button = $(e.currentTarget);
+			if (button.prop("disabled")) return;
+			button.prop("disabled", true);
+			let entry;
+			try {
+				entry = await this.call("get_entry", { name: button.attr("data-row-dl") });
+			} catch (err) {
+				button.prop("disabled", false);
+				return;
+			}
+			this.downloadImage(entry, button);
 		});
 		root.on("change", ".wt-level-filter, .wt-sup-filter, .wt-reg-from, .wt-reg-to", (e) => {
 			const box = $(e.currentTarget);
@@ -748,6 +772,10 @@ class WaterTankerApp {
 		];
 		if (full) {
 			cells.push(`<td data-label="${__("GPS Location")}">${this.locationCell(e)}</td>`);
+			const edit = frappe.model.can_write("Water Tanker Entry") ?`<button type="button" data-row-edit="${esc(e.name)}" title="${__("Edit")}" aria-label="${__("Edit")}">${ICONS.edit}</button>` : "";
+			const del = frappe.model.can_delete("Water Tanker Entry") ? `<button type="button" class="danger" data-row-del="${esc(e.name)}" title="${__("Delete")}" aria-label="${__("Delete")}">${ICONS.trash}</button>` : "";
+			const dl = `<button type="button" data-row-dl="${esc(e.name)}" title="${__("Download Image")}" aria-label="${__("Download Image")}">${ICONS.download}</button>`;
+			cells.push(`<td data-label="${__("Actions")}"><div class="wt-act">${edit}${del}${dl}</div></td>`);
 		}
 		return `<tr data-name="${esc(e.name)}">${cells.join("")}</tr>`;
 	}
@@ -769,7 +797,7 @@ class WaterTankerApp {
 		body.html(
 			this.registerRows.length
 				? this.registerRows.map((e) => this.entryRow(e, true)).join("")
-				: `<tr><td class="wt-empty" colspan="6">${__("No water tanker entries found")}</td></tr>`
+				: `<tr><td class="wt-empty" colspan="7">${__("No water tanker entries found")}</td></tr>`
 		);
 		this.$(".wt-count").text(this.registerRows.length ? __("Showing {0} of {1}", [this.registerRows.length, data.total]) : "");
 		this.$(".wt-load-more").prop("hidden", this.registerRows.length >= data.total);
@@ -943,8 +971,7 @@ class WaterTankerApp {
 	}
 
 	/** Upload what has not been uploaded yet; the urls are kept so a retry never uploads a photo twice. */
-	async uploadShot(shot, label) {
-		const tag = this.ref.slice(0, 8);
+	async uploadShot(shot, label, tag = this.ref.slice(0, 8)) {
 		if (!shot.urls) shot.urls = {};
 		if (!shot.urls.original) shot.urls.original = await this.uploadBlob(shot.original, `${label}_${tag}_original.jpg`);
 		if (!shot.urls.stamped) shot.urls.stamped = await this.uploadBlob(shot.stamped, `${label}_${tag}_stamped.jpg`);
@@ -1331,7 +1358,7 @@ class WaterTankerApp {
 		return `<div class="${wide ? "wt-fact-wide" : ""}"><div class="wt-label">${label}</div><div class="wt-fact-v ${empty ? "mute" : ""}">${empty ? "—" : value}</div></div>`;
 	}
 
-	async detail(name) {
+	async detail(name, edit = false) {
 		let e;
 		try {
 			e = await this.call("get_entry", { name });
@@ -1370,47 +1397,64 @@ class WaterTankerApp {
 			<div class="wt-sec">${__("Record")}</div>
 			<div class="wt-facts">
 				${this.fact(__("Entry"), esc(e.name))}
-				${this.fact(__("Status"), pill(e.status, STATUS_TONE[e.status]))}
 				${this.fact(__("Created By"), esc(e.created_by))}
 			</div>`;
-		// a closed entry is final: no editing and no closing again, whoever opens it
-		const editable = !!e.can_write && e.status !== "Closed";
+		// edit is whatever Role Permission Manager gives the user on Water Tanker Entry
+		const editable = !!e.can_write;
+		// delete is whatever Role Permission Manager gives the user on Water Tanker Entry
+		const deletable = frappe.model.can_delete("Water Tanker Entry");
 		const foot = `
 			${SHOW_WHATSAPP ? `<button type="button" class="wt-btn-primary wt-btn-wa wt-d-share">${ICONS.chat}${__("Share on WhatsApp")}</button>` : ""}
-			${editable ? `<button type="button" class="wt-btn-ghost wt-d-edit">${__("Edit Inspection")}</button>` : ""}
-			${editable ? `<button type="button" class="wt-btn-ghost wt-d-close">${__("Mark Closed")}</button>` : ""}
-			${e.status === "Closed" ? `<span class="wt-tiny" style="align-self:center">${__("This entry is closed and cannot be edited.")}</span>` : ""}
+			<button type="button" class="wt-btn-primary wt-d-download">${__("Download Image")}</button>
+			${navigator.canShare ? `<button type="button" class="wt-btn-ghost wt-d-shareimg">${__("Share Image")}</button>` : ""}
+			${editable ? `<button type="button" class="wt-btn-ghost wt-d-edit">${__("Edit")}</button>` : ""}
+			${deletable ? `<button type="button" class="wt-btn-ghost wt-d-delete">${__("Delete")}</button>` : ""}
 			<button type="button" class="wt-btn-ghost wt-close">${__("Close")}</button>`;
 		const node = this.modal(`${esc(e.name)} · ${esc(e.vehicle_number)}`, body, foot, "wide");
 		node.on("click", ".wt-d-share", () => this.share(e));
+		node.on("click", ".wt-d-download", (ev) => this.downloadImage(e, $(ev.currentTarget)));
+		node.on("click", ".wt-d-shareimg", (ev) => this.shareImage(e, $(ev.currentTarget)));
 		node.on("click", ".wt-d-edit", () => this.editInspection(node, e));
-		node.on("click", ".wt-d-close", () => {
-			node.hide(); // nothing of the entry stays on screen behind the question, nor after Yes
-			this.confirm(
-				__("Close {0}? A closed entry cannot be edited.", [e.name]),
-				async () => {
-					try {
-						await this.call("update_entry", { name: e.name, data: { status: "Closed" } });
-					} catch (err) {
-						node.show();
-						return;
-					}
-					node.remove();
-					frappe.show_alert({ message: __("{0} is closed", [e.name]), indicator: "green" }, 4);
-					this.afterChange(e.name, false);
-				},
-				() => node.show()
-			);
+		if (edit && editable) this.editInspection(node, e);
+		node.on("click", ".wt-d-delete", () => {
+			node.hide();
+			this.deleteEntry(e.name, () => node.remove(), () => node.show());
 		});
+	}
+
+	deleteEntry(name, onDone, onCancel) {
+		this.confirm(
+			__("Delete {0}? Its photos are deleted too. This cannot be undone.", [name]),
+			async () => {
+				try {
+					await frappe.xcall("frappe.client.delete", { doctype: "Water Tanker Entry", name });
+				} catch (err) {
+					if (onCancel) onCancel();
+					return;
+				}
+				if (onDone) onDone();
+				frappe.show_alert({ message: __("{0} deleted", [name]), indicator: "green" }, 4);
+				this.afterChange(name, false);
+			},
+			onCancel
+		);
 	}
 
 	editInspection(node, e) {
 		let level = e.tank_level_check || "Not Checked";
+		const retaken = {}; // kind -> a photo taken again in this edit, saved with the rest
 		const f = (label, name, value, extra = "") => `<label class="wt-field">${label}<input data-e="${name}" value="${esc(value == null ? "" : value)}" ${extra}></label>`;
+		const shotTile = (kind, label, url, when) => `<div class="wt-e-shot" data-kind="${kind}">
+				<div class="wt-label">${label}</div>
+				${url ? `<img src="${esc(url)}" alt="${esc(label)}">` : `<div class="wt-e-noshot">${__("No photo")}</div>`}
+				<small class="wt-e-shot-meta">${when ? esc(fmtDT(when, true)) : ""}</small>
+				<button type="button" class="wt-btn-ghost wt-btn-sm wt-e-retake" data-kind="${kind}">${ICONS.camera}${url ? __("Retake Photo") : __("Take Photo")}</button>
+			</div>`;
 		node.find(".wt-modal-body").html(`
 			<div class="wt-label">${__("Tank Level Check")}</div>
 			<div class="wt-seg wt-e-seg">${LEVELS.filter((l) => l !== "Low" || level === "Low").map((l) => `<button type="button" data-level="${l}" class="${l === level ? "active" : ""}">${__(l)}</button>`).join("")}</div>
 			<div class="wt-form" style="margin-top:12px">
+				<label class="wt-field">${__("Tanker")}<select data-e="tanker">${["", "RGI Group", "Rented"].map((t) => `<option value="${t}" ${t === (e.tanker || "") ? "selected" : ""}>${t ? __(t) : __("Select tanker")}</option>`).join("")}</select></label>
 				${f(__("Checked By"), "checked_by", e.checked_by)}
 				${f(__("Observed Quantity"), "observed_quantity", e.observed_quantity, 'type="number" inputmode="decimal" min="0" step="any"')}
 				${f(__("Driver Name"), "driver_name", e.driver_name)}
@@ -1418,12 +1462,37 @@ class WaterTankerApp {
 				<label class="wt-field wide">${__("Inspection Remarks")}<textarea data-e="inspection_remarks" rows="3">${esc(e.inspection_remarks || "")}</textarea></label>
 				<label class="wt-field wide">${__("Location Address")}<textarea data-e="location_address" rows="2">${esc(e.location_address || "")}</textarea></label>
 			</div>
-			<p style="color:var(--wt-muted);font-size:12px;margin:12px 0 0">${__("The photos, capture time and GPS location cannot be changed.")}</p>`);
+			<div class="wt-sec">${__("Photo Evidence")}</div>
+			<div class="wt-e-shots">
+				${shotTile("tanker", __("Water Tanker Photo"), e.tanker_photo_stamped || e.tanker_photo, e.photo_capture_datetime)}
+				${shotTile("level", __("Tank Level Photo"), e.tank_level_photo_stamped || e.tank_level_photo, e.tank_level_photo_datetime)}
+			</div>
+			<p style="color:var(--wt-muted);font-size:12px;margin:10px 0 0">${__("A retaken photo replaces the old one, with its new capture time and GPS location.")}</p>`);
 		node.find(".wt-modal-foot").html(`<button type="button" class="wt-btn-primary wt-e-save">${__("Save")}</button><button type="button" class="wt-btn-ghost wt-close">${__("Cancel")}</button>`);
 		node.on("click", ".wt-e-seg button", (ev) => {
 			level = $(ev.currentTarget).data("level");
 			node.find(".wt-e-seg button").removeClass("active");
 			$(ev.currentTarget).addClass("active");
+		});
+		node.on("click", ".wt-e-retake", async (ev) => {
+			if (this.camera) return;
+			const kind = $(ev.currentTarget).data("kind");
+			const shot = await this.openCamera(kind);
+			if (!shot) return;
+			retaken[kind] = shot;
+			const tile = node.find(`.wt-e-shot[data-kind="${kind}"]`);
+			tile.find("img, .wt-e-noshot").replaceWith(`<img src="${shot.previewUrl}" alt="">`);
+			tile.find(".wt-e-shot-meta").text(`${fmtStamp(shot.capturedLocal)}${shot.lat != null ? " · " + coordText(shot.lat, shot.lng) : ""} · ${__("not saved yet")}`);
+			if (kind === "tanker" && shot.lat != null) {
+				// the photo has a new place: look its address up again
+				try {
+					const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${shot.lat}&lon=${shot.lng}&zoom=18`, { headers: { Accept: "application/json" } });
+					const place = await response.json();
+					if (place && place.display_name && retaken.tanker === shot) node.find('[data-e="location_address"]').val(place.display_name);
+				} catch (err) {
+					/* the address stays as it was; the coordinates are still saved */
+				}
+			}
 		});
 		node.on("click", ".wt-e-save", async (ev) => {
 			const button = $(ev.currentTarget).prop("disabled", true);
@@ -1431,6 +1500,23 @@ class WaterTankerApp {
 			node.find("[data-e]").each((_, el) => {
 				data[$(el).data("e")] = $(el).val();
 			});
+			try {
+				const tag = String(e.name).replace(/[^A-Za-z0-9-]/g, "");
+				const t = retaken.tanker;
+				if (t) {
+					const u = await this.uploadShot(t, "tanker", tag);
+					Object.assign(data, { tanker_photo: u.original, tanker_photo_stamped: u.stamped, photo_capture_datetime: t.capturedAt, latitude: t.lat, longitude: t.lng, gps_accuracy: t.accuracy });
+				}
+				const l = retaken.level;
+				if (l) {
+					const u = await this.uploadShot(l, "tank_level", tag);
+					Object.assign(data, { tank_level_photo: u.original, tank_level_photo_stamped: u.stamped, tank_level_photo_datetime: l.capturedAt });
+				}
+			} catch (err) {
+				this.warn(__("The new photo could not be uploaded. Check the connection and press Save again."));
+				button.prop("disabled", false);
+				return;
+			}
 			try {
 				await this.call("update_entry", { name: e.name, data });
 			} catch (err) {
@@ -1467,6 +1553,190 @@ class WaterTankerApp {
 	}
 
 	/** Opens WhatsApp with the message ready. The photo is attached by hand: there is no automatic image sharing. */
+	/** The entry as one picture (details + photos) to save or send. Drawn on a canvas, nothing leaves the browser. */
+	async entryImage(e) {
+		const W = 1080, P = 48, GAP = 28, colW = (W - 2 * P - GAP) / 2;
+		const canvas = document.createElement("canvas");
+		canvas.width = W;
+		canvas.height = 6000;
+		const ctx = canvas.getContext("2d");
+		const font = (size, weight = 400) => `${weight} ${size}px Inter, "Segoe UI", Arial, sans-serif`;
+		const load = (src) =>
+			new Promise((resolve) => {
+				if (!src) return resolve(null);
+				const img = new Image();
+				img.onload = () => resolve(img);
+				img.onerror = () => resolve(null);
+				img.src = src;
+			});
+		// splits text into lines that fit the width
+		const wrap = (text, width) => {
+			const lines = [];
+			String(text).split("\n").forEach((para) => {
+				let line = "";
+				para.split(/\s+/).forEach((word) => {
+					const test = line ? line + " " + word : word;
+					if (ctx.measureText(test).width > width && line) {
+						lines.push(line);
+						line = word;
+					} else line = test;
+				});
+				lines.push(line);
+			});
+			return lines;
+		};
+
+		ctx.fillStyle = "#ffffff";
+		ctx.fillRect(0, 0, W, canvas.height);
+		ctx.textBaseline = "top";
+
+		// header: logo, title, entry number
+		let y = P;
+		const logo = await load(WT_LOGO);
+		if (logo) {
+			const h = 64, w = (logo.width / logo.height) * h;
+			ctx.drawImage(logo, P, y, w, h);
+		}
+		ctx.textAlign = "right";
+		ctx.fillStyle = "#5b45e8";
+		ctx.font = font(30, 700);
+		ctx.fillText(__("Water Tanker Entry"), W - P, y);
+		ctx.fillStyle = "#202638";
+		ctx.font = font(22, 600);
+		ctx.fillText(`${e.name} · ${e.vehicle_number}`, W - P, y + 42);
+		ctx.textAlign = "left";
+		y += 96;
+		ctx.fillStyle = "#e4e7ee";
+		ctx.fillRect(P, y, W - 2 * P, 2);
+		y += 26;
+
+		const section = (title) => {
+			ctx.fillStyle = "#5b45e8";
+			ctx.font = font(17, 700);
+			ctx.fillText(title.toUpperCase(), P, y);
+			y += 36;
+		};
+		// facts two to a row; wide ones take the full row
+		const facts = (list) => {
+			let col = 0, rowH = 0;
+			const flush = () => {
+				y += rowH + 22;
+				col = 0;
+				rowH = 0;
+			};
+			list.forEach(([label, value, wide]) => {
+				if (wide && col) flush();
+				const x = P + col * (colW + GAP), width = wide ? W - 2 * P : colW;
+				ctx.fillStyle = "#7d879c";
+				ctx.font = font(15, 600);
+				ctx.fillText(label.toUpperCase(), x, y);
+				ctx.fillStyle = "#202638";
+				ctx.font = font(23, 600);
+				const lines = wrap(value == null || value === "" ? "—" : value, width);
+				lines.forEach((line, i) => ctx.fillText(line, x, y + 24 + i * 31));
+				rowH = Math.max(rowH, 24 + lines.length * 31);
+				if (wide || col === 1) flush();
+				else col = 1;
+			});
+			if (col) flush();
+			y += 8;
+		};
+		const qty = (v) => (v == null ? "" : String(v));
+
+		section(__("Arrival Details"));
+		facts([
+			[__("Arrival Date & Time"), fmtDT(e.arrival_datetime, true)],
+			[__("Tanker"), e.tanker],
+			[__("Vehicle / Water Tanker Number"), e.vehicle_number],
+			[__("Water Supplier"), e.water_supplier],
+			[__("Driver Name"), e.driver_name],
+			[__("Expected Quantity"), qty(e.expected_quantity)],
+		]);
+		section(__("Physical Inspection"));
+		facts([
+			[__("Tank Level Check"), e.tank_level_check],
+			[__("Checked By"), e.checked_by],
+			[__("Observed Quantity"), qty(e.observed_quantity)],
+			[__("Inspection Remarks"), e.inspection_remarks, true],
+		]);
+		section(__("Capture & Location"));
+		facts([
+			[__("Photo Capture Time"), fmtDT(e.photo_capture_datetime, true)],
+			[__("GPS Accuracy"), e.gps_accuracy == null ? "" : `±${Math.round(e.gps_accuracy)} m`],
+			[__("GPS Latitude / Longitude"), hasPoint(e) ? coordText(e.latitude, e.longitude) : ""],
+			[__("Location Address"), e.location_address, true],
+		]);
+
+		// photos: the stamped copies, which carry the time and GPS on the picture itself
+		const shots = (await Promise.all([load(e.tanker_photo_stamped || e.tanker_photo), load(e.tank_level_photo_stamped || e.tank_level_photo)])).filter(Boolean);
+		if (shots.length) {
+			section(__("Photo Evidence"));
+			const width = shots.length === 2 ? colW : W - 2 * P;
+			let tallest = 0;
+			shots.forEach((img, i) => {
+				let w = width, h = (img.height / img.width) * w;
+				if (h > 1100) {
+					h = 1100;
+					w = (img.width / img.height) * h;
+				}
+				ctx.drawImage(img, P + i * (colW + GAP), y, w, h);
+				tallest = Math.max(tallest, h);
+			});
+			y += tallest + 26;
+		}
+
+		ctx.fillStyle = "#e4e7ee";
+		ctx.fillRect(P, y, W - 2 * P, 2);
+		y += 18;
+		ctx.fillStyle = "#7d879c";
+		ctx.font = font(15, 500);
+		ctx.fillText(`${__("Created By")}: ${e.created_by || "—"}   ·   ${__("Generated")}: ${fmtDT(new Date().toISOString(), true)}`, P, y);
+		y += 20 + P;
+
+		const out = document.createElement("canvas");
+		out.width = W;
+		out.height = Math.ceil(y);
+		out.getContext("2d").drawImage(canvas, 0, 0);
+		const blob = await new Promise((resolve) => out.toBlob(resolve, "image/jpeg", 0.9));
+		return new File([blob], `${e.name}_${normVehicle(e.vehicle_number)}.jpg`, { type: "image/jpeg" });
+	}
+
+	async downloadImage(e, button) {
+		button.prop("disabled", true);
+		try {
+			const file = await this.entryImage(e);
+			const url = URL.createObjectURL(file);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = file.name;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 10000);
+		} catch (err) {
+			this.warn(__("The image could not be made. Try again."));
+		} finally {
+			button.prop("disabled", false);
+		}
+	}
+
+	// the device share sheet (WhatsApp, mail, ...) where the browser can send files
+	async shareImage(e, button) {
+		button.prop("disabled", true);
+		try {
+			const file = await this.entryImage(e);
+			if (navigator.canShare && navigator.canShare({ files: [file] })) {
+				await navigator.share({ files: [file], title: `${e.name} · ${e.vehicle_number}` });
+			} else {
+				this.warn(__("This browser cannot share files. Use Download Image and send the file."));
+			}
+		} catch (err) {
+			if (err && err.name !== "AbortError") this.warn(__("The image could not be shared. Use Download Image instead."));
+		} finally {
+			button.prop("disabled", false);
+		}
+	}
+
 	share(e) {
 		window.open("https://wa.me/?text=" + encodeURIComponent(this.waText(e)), "_blank", "noopener");
 	}

@@ -56,7 +56,7 @@ DETAIL_FIELDS = LIST_FIELDS + [
 	"created_by",
 	"creation",
 ]
-# what update_entry may change; photos, place and times are evidence and are never rewritten
+# what update_entry may change as plain values; photos are replaced only by a new capture (_replace_photos)
 EDITABLE = (
 	"tanker",
 	"driver_name",
@@ -232,8 +232,8 @@ def get_entry(name):
 	doc = frappe.get_doc(ENTRY, name)
 	doc.check_permission("read")
 	out = _row(doc)
-	# a closed entry is final, for every role
-	out["can_write"] = bool(doc.has_permission("write")) and doc.status != "Closed"
+	# editing is whatever Role Permission Manager gives the user
+	out["can_write"] = bool(doc.has_permission("write"))
 	return out
 
 
@@ -440,14 +440,57 @@ def save_entry(data):
 	return {**get_entry(doc.name), "duplicate": False}
 
 
+def _replace_photos(doc, data):
+	"""A photo taken again while editing replaces the old one, together with its capture time and, for the
+	tanker photo, its GPS location. Returns the new files to attach and the urls of the old ones."""
+	attach, old = {}, []
+	if _text(data.get("tanker_photo")):
+		photo = _photo(data.get("tanker_photo"), _("The tanker photo"), required=True)
+		stamped = _photo(data.get("tanker_photo_stamped"), _("The tanker photo with stamp"))
+		lat, lng, accuracy = _coordinates(data)
+		taken = _capture_time(data.get("photo_capture_datetime"), _("Water Tanker photo"))
+		old += [doc.tanker_photo, doc.tanker_photo_stamped]
+		doc.update(
+			{
+				"tanker_photo": _text(data.get("tanker_photo")),
+				"tanker_photo_stamped": _text(data.get("tanker_photo_stamped")) or None,
+				"photo_capture_datetime": taken,
+				"latitude": lat,
+				"longitude": lng,
+				"gps_accuracy": accuracy,
+			}
+		)
+		attach.update({"tanker_photo": photo, "tanker_photo_stamped": stamped})
+	if _text(data.get("tank_level_photo")):
+		photo = _photo(data.get("tank_level_photo"), _("The tank level photo"), required=True)
+		stamped = _photo(data.get("tank_level_photo_stamped"), _("The tank level photo with stamp"))
+		taken = _capture_time(data.get("tank_level_photo_datetime"), _("Tank level photo"))
+		old += [doc.tank_level_photo, doc.tank_level_photo_stamped]
+		doc.update(
+			{
+				"tank_level_photo": _text(data.get("tank_level_photo")),
+				"tank_level_photo_stamped": _text(data.get("tank_level_photo_stamped")) or None,
+				"tank_level_photo_datetime": taken,
+			}
+		)
+		attach.update({"tank_level_photo": photo, "tank_level_photo_stamped": stamped})
+	return attach, [url for url in old if url]
+
+
+def _drop_files(doc, urls):
+	"""Remove the files of photos that were replaced, so only the current ones stay with the entry."""
+	for url in urls:
+		for name in frappe.get_all("File", filters={"file_url": url, "attached_to_doctype": ENTRY, "attached_to_name": doc.name}, pluck="name"):
+			frappe.delete_doc("File", name, ignore_permissions=True)
+
+
 @frappe.whitelist()
 def update_entry(name, data):
-	"""Change the inspection details or close the entry. The photos, time and place stay as captured."""
+	"""Change the details of an entry; a photo taken again replaces the old one with its new time and place."""
 	data = _loads(data)
 	doc = frappe.get_doc(ENTRY, name)
 	doc.check_permission("write")
-	if doc.status == "Closed":
-		frappe.throw(_("A closed entry cannot be changed"))
+	attach, replaced = _replace_photos(doc, data)
 
 	for key in EDITABLE:
 		if key not in data:
@@ -473,6 +516,8 @@ def update_entry(name, data):
 	if "status" not in data and doc.status == "Draft" and doc.tank_level_check != "Not Checked":
 		doc.status = "Inspected"
 	doc.save()
+	_attach(doc, attach)
+	_drop_files(doc, replaced)
 	return get_entry(doc.name)
 
 
@@ -698,7 +743,7 @@ def export_excel(search=None, level=None, supplier=None, from_date=None, to_date
 	summary = _summary(rows)
 	head = [
 		_("Date & Time"), _("Vehicle"), _("Water Supplier"), _("Driver"), _("Tank Level"),
-		_("Expected Quantity"), _("Observed Quantity"), _("Checked By"), _("Inspection Remarks"), _("Status"),
+		_("Expected Quantity"), _("Observed Quantity"), _("Checked By"), _("Inspection Remarks"), _("Tanker"),
 		_("Photo Captured"), _("Latitude"), _("Longitude"), _("Google Maps"), _("Location Address"),
 		_("Water Tanker Photo"), _("Tank Level Photo"),
 	]
@@ -709,7 +754,7 @@ def export_excel(search=None, level=None, supplier=None, from_date=None, to_date
 				_when(r.arrival_datetime), r.vehicle_number, r.water_supplier, r.driver_name or "",
 				r.tank_level_check or "", flt(r.expected_quantity) if r.expected_quantity is not None else "",
 				flt(r.observed_quantity) if r.observed_quantity is not None else "", r.checked_by or "",
-				r.inspection_remarks or "", r.status or "", _when(r.photo_capture_datetime, True),
+				r.inspection_remarks or "", r.tanker or "", _when(r.photo_capture_datetime, True),
 				flt(r.latitude) if r.latitude is not None else "", flt(r.longitude) if r.longitude is not None else "",
 				_map_link(r), r.location_address or "",
 				frappe.utils.get_url(r.tanker_photo_stamped or r.tanker_photo) if (r.tanker_photo_stamped or r.tanker_photo) else "",
