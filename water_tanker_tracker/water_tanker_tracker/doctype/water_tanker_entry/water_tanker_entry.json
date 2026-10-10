@@ -1,0 +1,295 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "WTE-.YYYY.-.#####",
+ "creation": "2026-10-09 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "arrival_section",
+  "arrival_datetime",
+  "tanker",
+  "vehicle_number",
+  "water_supplier",
+  "column_break_arrival",
+  "driver_name",
+  "tanker_type",
+  "expected_quantity",
+  "inspection_section",
+  "tank_level_check",
+  "checked_by",
+  "column_break_inspection",
+  "observed_quantity",
+  "inspection_remarks",
+  "photo_section",
+  "tanker_photo",
+  "tanker_photo_stamped",
+  "photo_capture_datetime",
+  "column_break_photo",
+  "tank_level_photo",
+  "tank_level_photo_stamped",
+  "tank_level_photo_datetime",
+  "location_section",
+  "latitude",
+  "longitude",
+  "gps_accuracy",
+  "column_break_location",
+  "location_address",
+  "record_section",
+  "status",
+  "created_by",
+  "client_ref"
+ ],
+ "fields": [
+  {
+   "fieldname": "arrival_section",
+   "fieldtype": "Section Break",
+   "label": "Arrival Details"
+  },
+  {
+   "fieldname": "arrival_datetime",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Arrival Date & Time",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tanker",
+   "fieldtype": "Select",
+   "label": "Tanker",
+   "options": "\nRGI Group\nRented",
+   "in_list_view": 0,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "vehicle_number",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Vehicle / Water Tanker Number",
+   "options": "Water Tanker Vehicle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "water_supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Water Supplier Name",
+   "options": "Water Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_arrival",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "default": "Water Tanker",
+   "fieldname": "tanker_type",
+   "fieldtype": "Data",
+   "label": "Water Tanker Type"
+  },
+  {
+   "fieldname": "expected_quantity",
+   "fieldtype": "Float",
+   "label": "Expected Quantity"
+  },
+  {
+   "fieldname": "inspection_section",
+   "fieldtype": "Section Break",
+   "label": "Physical Inspection"
+  },
+  {
+   "default": "Not Checked",
+   "fieldname": "tank_level_check",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tank Level Check",
+   "options": "Full\nPartial\nLow\nNot Checked"
+  },
+  {
+   "fieldname": "checked_by",
+   "fieldtype": "Data",
+   "label": "Checked By"
+  },
+  {
+   "fieldname": "column_break_inspection",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "observed_quantity",
+   "fieldtype": "Float",
+   "label": "Observed Quantity"
+  },
+  {
+   "fieldname": "inspection_remarks",
+   "fieldtype": "Small Text",
+   "label": "Inspection Remarks"
+  },
+  {
+   "fieldname": "photo_section",
+   "fieldtype": "Section Break",
+   "label": "Photo Evidence"
+  },
+  {
+   "fieldname": "tanker_photo",
+   "fieldtype": "Attach Image",
+   "label": "Water Tanker / Vehicle Photo",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "description": "The same photo with its date, time and location written on it",
+   "fieldname": "tanker_photo_stamped",
+   "fieldtype": "Attach Image",
+   "label": "Water Tanker Photo (with stamp)",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "photo_capture_datetime",
+   "fieldtype": "Datetime",
+   "label": "Photo Capture Date & Time",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_photo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tank_level_photo",
+   "fieldtype": "Attach Image",
+   "label": "Tank Level Photo",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tank_level_photo_stamped",
+   "fieldtype": "Attach Image",
+   "label": "Tank Level Photo (with stamp)",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tank_level_photo_datetime",
+   "fieldtype": "Datetime",
+   "label": "Tank Level Photo Capture Date & Time",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "no_copy": 1,
+   "precision": "9",
+   "read_only": 1
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "no_copy": 1,
+   "precision": "9",
+   "read_only": 1
+  },
+  {
+   "description": "In metres, as reported by the device",
+   "fieldname": "gps_accuracy",
+   "fieldtype": "Float",
+   "label": "GPS Accuracy (m)",
+   "no_copy": 1,
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_location",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "location_address",
+   "fieldtype": "Small Text",
+   "label": "Location Address"
+  },
+  {
+   "fieldname": "record_section",
+   "fieldtype": "Section Break",
+   "label": "Record"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nInspected\nClosed"
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_ref",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Client Reference",
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-10 08:21:06.292229",
+ "modified_by": "Administrator",
+ "module": "Water Tanker Tracker",
+ "name": "Water Tanker Entry",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Water Tanker User",
+   "write": 1
+  }
+ ],
+ "search_fields": "vehicle_number,water_supplier",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "vehicle_number",
+ "track_changes": 1
+}
