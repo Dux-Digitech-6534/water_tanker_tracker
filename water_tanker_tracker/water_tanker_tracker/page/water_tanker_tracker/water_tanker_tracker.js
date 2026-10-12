@@ -43,8 +43,10 @@ const pill = (text, tone) => `<span class="wt-pill ${tone || ""}">${esc(text)}</
 const levelPill = (level) => pill(level || "Not Checked", LEVEL_TONE[level || "Not Checked"]);
 
 const svg = (paths) =>
-	`<svg class="wt-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+	`<svg class="wt-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 const ICONS = {
+	moon: svg('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'),
+	sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>'),
 	dashboard: svg('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
 	register: svg('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),
 	truck: svg('<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'),
@@ -318,6 +320,187 @@ background:var(--wt-bg);border-radius:0;padding:0}
 .wt-reg td.wt-empty::before{content:none}
 }
 @media (max-width:440px){.wt-stat-n{font-size:24px}.wt-seg button{padding:0 10px}}
+.wt-sel{position:relative;display:block;width:100%}
+.wt-sel>select{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none}
+.wt-sel-t{width:100%;min-height:38px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--wt-border);border-radius:8px;background:var(--wt-panel);color:var(--wt-text);padding:0 10px;font:inherit;font-size:13px;font-weight:500;text-align:left;cursor:pointer;text-transform:none;letter-spacing:0}
+.wt-sel-t .wt-ic{flex:none;opacity:.6}
+.wt-sel-t.ph .wt-sel-label{color:var(--wt-muted)}
+.wt-sel-t:focus,.wt-sel-t.open{outline:0;border-color:var(--wt-primary);box-shadow:0 0 0 3px var(--wt-primary-soft)}
+.wt-sel-t:disabled{background:var(--wt-bg);color:var(--wt-muted);cursor:default}
+.wt-sel-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wt-sel-panel{position:fixed;z-index:1200;background:var(--wt-panel);border:1px solid var(--wt-border);border-radius:12px;box-shadow:0 18px 40px rgba(20,24,40,.18);padding:8px;display:flex;flex-direction:column;gap:8px}
+.wt-sel-panel[hidden]{display:none}
+.wt-sel-search{min-height:38px;border:1px solid var(--wt-primary);border-radius:8px;padding:0 12px;font:inherit;font-size:13px;background:var(--wt-panel);color:var(--wt-text);outline:0;box-shadow:0 0 0 3px var(--wt-primary-soft);width:100%}
+.wt-sel-list{list-style:none;margin:0;padding:0;overflow:auto}
+.wt-sel-opt{padding:10px 12px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--wt-text)}
+.wt-sel-opt:hover,.wt-sel-opt.active{background:var(--wt-primary-soft)}
+.wt-sel-opt.selected{color:var(--wt-primary);font-weight:600}
+.wt-sel-none{padding:12px;color:var(--wt-muted);font-size:13px}
+
+/* ==========================================================================================================
+   DUX Digitech design system theme (tokens from dux-digitech-design-system/project/tokens/*.css)
+   Iris = interactive, Cyan = data (numbers, IDs, amounts, dates in mono), Geist for UI, thin-stroke icons,
+   hairlines + soft ambient shadows, one hairline iris -> cyan gradient accent, light + dark ("instrument").
+   Written last so it re-maps the page's own --wt-* variables; the rules above stay as the structure.
+   ========================================================================================================== */
+.wt-app{
+--wt-bg:#F3F4F7;--wt-panel:#FFFFFF;--wt-surface:#FFFFFF;--wt-card:#FFFFFF;
+--wt-border:#E7E9EE;--wt-border-2:#DCDFE6;
+--wt-text:#1A2030;--wt-text-2:#586273;--wt-muted:#8A93A3;
+--wt-primary:#5C4DE6;--wt-primary-deep:#4A3CD0;--wt-primary-soft:rgba(92,77,230,.10);
+--wt-teal:#0E9C8B;--wt-teal-soft:rgba(14,156,139,.12);
+--wt-amber:#B0741A;--wt-amber-soft:rgba(176,116,26,.11);
+--wt-red:#C8475E;--wt-red-soft:rgba(200,71,94,.09);
+--wt-ok:#15916A;--wt-ok-soft:rgba(21,145,106,.10);
+--wt-th:#FAFAFC;--wt-hover:rgba(92,77,230,.045);--wt-hdr:rgba(255,255,255,.82);
+--wt-shadow:0 6px 26px rgba(22,28,46,.07);--wt-pop:0 10px 34px rgba(22,28,46,.10);--wt-inset:inset 0 1px 0 rgba(255,255,255,.6);
+--wt-brand-glow:0 6px 18px rgba(109,94,246,.40);
+--wt-grad:linear-gradient(90deg,#5C4DE6 0%,#4F9FD8 55%,#0E9C8B 100%);
+--wt-grad-line:linear-gradient(90deg,rgba(92,77,230,.6) 0%,rgba(79,159,216,.6) 55%,rgba(14,156,139,.6) 100%);
+--wt-ambient:radial-gradient(120% 64% at 50% -16%,rgba(92,77,230,.06),transparent 60%),radial-gradient(80% 50% at 88% 6%,rgba(14,156,139,.045),transparent 55%);
+--wt-font:'Geist','Geist Variable',system-ui,-apple-system,'Segoe UI',sans-serif;
+--wt-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+--wt-spring:cubic-bezier(.22,1,.36,1);--wt-ease:cubic-bezier(.4,0,.2,1);
+font-family:var(--wt-font);background:var(--wt-ambient),var(--wt-bg);-webkit-font-smoothing:antialiased;line-height:1.5}
+[data-theme=dark] .wt-app{
+--wt-bg:#0A0D13;--wt-panel:#161A25;--wt-surface:#11151E;--wt-card:linear-gradient(180deg,#181D29,#161A25);
+--wt-border:#232938;--wt-border-2:#2C3344;
+--wt-text:#E8EAF1;--wt-text-2:#9AA3B7;--wt-muted:#9AA3B7;
+--wt-primary:#6D5EF6;--wt-primary-deep:#5B4DE0;--wt-primary-soft:rgba(109,94,246,.14);
+--wt-teal:#2DD4BF;--wt-teal-soft:rgba(45,212,191,.14);
+--wt-amber:#E0A85C;--wt-amber-soft:rgba(224,168,92,.11);
+--wt-red:#E8738A;--wt-red-soft:rgba(232,115,138,.10);
+--wt-ok:#34D39A;--wt-ok-soft:rgba(52,211,154,.10);
+--wt-th:#141926;--wt-hover:rgba(109,94,246,.06);--wt-hdr:rgba(17,21,30,.80);
+--wt-shadow:0 18px 50px rgba(0,0,0,.42);--wt-pop:0 14px 40px rgba(0,0,0,.40);--wt-inset:inset 0 1px 0 rgba(255,255,255,.045);
+--wt-grad-line:linear-gradient(90deg,rgba(109,94,246,.6) 0%,rgba(79,159,216,.6) 55%,rgba(45,212,191,.6) 100%);
+--wt-grad:linear-gradient(90deg,#6D5EF6 0%,#4F9FD8 55%,#2DD4BF 100%);
+--wt-ambient:radial-gradient(120% 70% at 50% -12%,rgba(109,94,246,.16),transparent 60%),radial-gradient(90% 60% at 88% 8%,rgba(45,212,191,.07),transparent 55%)}
+body.wt-active:has(.wt-app){background:var(--wt-bg,#F3F4F7)}
+.wt-app :focus-visible{outline:2px solid var(--wt-primary);outline-offset:2px}
+.wt-app ::selection{background:var(--wt-primary-soft)}
+
+/* shell: sidebar + blurred header */
+.wt-nav-side{background:var(--wt-surface);border-right-color:var(--wt-border)}
+.wt-brand{border-top-color:var(--wt-border);font-weight:600;letter-spacing:-.01em}
+.wt-nav{border-radius:12px;font-weight:500;color:var(--wt-text-2);transition:background .18s var(--wt-ease),color .18s var(--wt-ease),transform .25s var(--wt-spring)}
+.wt-nav:hover{background:var(--wt-primary-soft);color:var(--wt-text);transform:translateX(3px)}
+.wt-nav.active{background:var(--wt-primary-soft);color:var(--wt-primary);font-weight:600}
+.wt-navbar{position:sticky;top:0;z-index:30;background:var(--wt-hdr);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border-bottom-color:var(--wt-border)}
+.wt-crumb b{font-weight:600}
+.wt-nb-btn,.wt-menu{border-radius:12px;border-color:var(--wt-border-2);background:var(--wt-surface);box-shadow:var(--wt-inset);transition:all .25s var(--wt-spring)}
+.wt-nb-btn:hover{transform:translateY(-1px);border-color:var(--wt-primary);color:var(--wt-primary)}
+.wt-avatar{background:var(--wt-primary-soft);color:var(--wt-primary);box-shadow:0 0 0 1px var(--wt-primary-soft)}
+.wt-side-foot{border-top-color:var(--wt-border)}
+.wt-user{color:var(--wt-text-2);font-weight:500}
+
+/* type */
+.wt-title{font-size:22px;font-weight:600;letter-spacing:-.025em}
+.wt-hello{font-size:26px;font-weight:600;letter-spacing:-.025em}
+.wt-grad{background:var(--wt-grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.wt-eyebrow,.wt-label,.wt-sec,.wt-card h4,.wt-field{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--wt-muted)}
+.wt-field .wt-hint{letter-spacing:0}
+.wt-sub,.wt-tiny,.wt-stat-l,.wt-more{color:var(--wt-muted)}
+.wt-section-head{font-weight:600;color:var(--wt-primary);border-bottom-color:var(--wt-border)}
+
+/* numbers, IDs, amounts and dates: mono + tabular, cyan */
+.wt-amt,.wt-num,.wt-sr,.wt-id,.wt-stat-n,.wt-rep-card-v,.wt-datebox,.wt-pg-btn{font-family:var(--wt-mono);font-variant-numeric:tabular-nums}
+.wt-amt,.wt-num,.wt-id,.wt-stat-n,.wt-rep-card-v{color:var(--wt-teal)}
+.wt-id{font-weight:500}
+.wt-stat-n{font-weight:600;letter-spacing:-.02em}
+.wt-rep-card-v{font-weight:600;font-size:15.5px;letter-spacing:-.02em}
+.wt-sr{font-weight:400}
+.wt-datebox{font-weight:500;color:var(--wt-teal)}
+.wt-table .wt-num,.wt-table .wt-amt{font-size:12.5px}
+
+/* cards: hairline + ambient shadow + lit top edge, hairline gradient accent on filter bar and tables */
+.wt-card,.wt-stat,.wt-table-wrap,.wt-datebox,.wt-seg,.wt-rep-msg{background:var(--wt-card);border-color:var(--wt-border);box-shadow:var(--wt-shadow),var(--wt-inset)}
+.wt-card,.wt-stat,.wt-table-wrap,.wt-rep-msg{border-radius:16px}
+.wt-toolbar-card,.wt-table-wrap,.wt-dash-card{background:var(--wt-grad-line) top/100% 2px no-repeat,var(--wt-card)}
+.wt-flat{background:transparent;box-shadow:none}
+.wt-stat{transition:transform .25s var(--wt-spring),border-color .18s var(--wt-ease)}
+.wt-stat.wt-click:hover{transform:translateY(-2px);border-color:var(--wt-primary)}
+.wt-stat-ic{border-radius:10px}
+.wt-stat-s{color:var(--wt-text-2)}
+.wt-modal{background:var(--wt-surface);border-color:var(--wt-border);border-radius:18px;box-shadow:var(--wt-pop),var(--wt-inset)}
+.wt-modal-back{background:rgba(10,13,19,.46);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.wt-modal-head b{font-weight:600;letter-spacing:-.01em}
+.wt-upload,.wt-shot{border-color:var(--wt-border-2);background:var(--wt-bg)}
+
+/* tables */
+.wt-table{font-size:13px}
+.wt-table th{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--wt-muted);background:var(--wt-th);border-bottom-color:var(--wt-border)}
+.wt-table td{border-bottom-color:var(--wt-border)}
+.wt-table tbody tr[data-name]:hover td,.wt-table tbody tr[data-pay]:hover td,.wt-table tbody tr.wt-pickrow:hover td{background:var(--wt-hover)}
+.wt-table tbody tr[data-pay]{cursor:pointer}
+.wt-table .wt-empty{color:var(--wt-muted)}
+.wt-table input[type=text],.wt-table input:not([type]){border-radius:10px;border-color:var(--wt-border-2);background:var(--wt-surface)}
+
+/* inputs: 12px radius, hairline, iris focus ring */
+.wt-field select,.wt-field input,.wt-field textarea,.wt-search,.wt-sel-t{border-radius:12px;border-color:var(--wt-border-2);background:var(--wt-surface);box-shadow:var(--wt-inset);color:var(--wt-text);font-weight:450;transition:border-color .25s var(--wt-ease),box-shadow .25s var(--wt-ease)}
+.wt-field input:focus,.wt-field select:focus,.wt-field textarea:focus,.wt-search:focus,.wt-sel-t:focus,.wt-sel-t.open{border-color:var(--wt-primary);box-shadow:0 0 0 3px var(--wt-primary-soft)}
+.wt-field input[readonly]{background:var(--wt-bg)}
+.wt-date .wt-date-b{color:var(--wt-muted)}
+.wt-sel-panel{background:var(--wt-surface);border-color:var(--wt-border-2);border-radius:14px;box-shadow:var(--wt-pop)}
+.wt-sel-search{border-radius:10px;background:var(--wt-surface)}
+.wt-sel-opt{border-radius:10px}
+.wt-sel-opt:hover,.wt-sel-opt.active{background:var(--wt-hover)}
+.wt-check input,.wt-pick,.wt-pick-all{accent-color:var(--wt-primary)}
+
+/* buttons: pills; primary = iris gradient with brand glow */
+.wt-btn-primary,.wt-btn-ghost{border-radius:999px;font-weight:500;min-height:40px;transition:all .25s var(--wt-spring)}
+.wt-btn-primary{background:linear-gradient(150deg,var(--wt-primary),var(--wt-primary-deep));box-shadow:var(--wt-brand-glow),inset 0 1px 0 rgba(255,255,255,.22)}
+.wt-btn-primary:hover:not(:disabled){filter:none;transform:translateY(-1px)}
+.wt-btn-ghost{background:var(--wt-surface);border-color:var(--wt-border-2);box-shadow:var(--wt-inset);color:var(--wt-text)}
+.wt-btn-ghost:hover:not(:disabled){transform:translateY(-1px);border-color:var(--wt-primary);color:var(--wt-primary)}
+.wt-btn-sm{min-height:32px;padding:0 14px;border-radius:999px}
+.wt-btn-wa{background:linear-gradient(150deg,var(--wt-teal),var(--wt-teal));box-shadow:none}
+.wt-link{font-weight:600}
+.wt-act button,.wt-icon-btn{border-radius:10px;border-color:var(--wt-border-2);background:var(--wt-surface);box-shadow:var(--wt-inset);transition:all .25s var(--wt-spring);display:inline-flex;align-items:center;justify-content:center}
+.wt-act button:hover,.wt-icon-btn:hover{transform:translateY(-1px)}
+.wt-act button .wt-ic{width:16px;height:16px}
+.wt-btn-ghost.wt-d-delete,.wt-btn-ghost.wt-d-del{color:var(--wt-red)}
+.wt-seg button{font-weight:500;border-radius:10px}
+.wt-seg button.active{background:linear-gradient(150deg,var(--wt-primary),var(--wt-primary-deep));box-shadow:var(--wt-brand-glow)}
+
+/* status tags: dot + tinted pill (DUX StatusTag): New = pending amber, Approved = iris, Completed = ok green */
+.wt-pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:500;line-height:1;padding:4px 9px;border-radius:999px;background:var(--wt-primary-soft);color:var(--wt-primary)}
+.wt-pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+.wt-pill.amber{background:var(--wt-amber-soft);color:var(--wt-amber)}
+.wt-pill.teal{background:var(--wt-ok-soft);color:var(--wt-ok)}
+.wt-pill.red{background:var(--wt-red-soft);color:var(--wt-red)}
+.wt-rep-sec .wt-pill::before{display:none}
+.wt-gps{border-radius:12px}
+
+/* report cards + pager */
+.wt-rep-card{background:var(--wt-card);border-color:var(--wt-border);border-radius:14px;transition:border-color .18s var(--wt-ease),box-shadow .25s var(--wt-spring),background .18s var(--wt-ease)}
+.wt-rep-card.tone-g{--tone:var(--wt-teal);--tone-soft:var(--wt-teal-soft)}
+.wt-rep-card-l{color:var(--wt-text-2);font-weight:500}
+.wt-rep-card.total .wt-rep-card-v{color:var(--wt-teal)}
+.wt-rep-sec h3{font-weight:600;letter-spacing:-.02em}
+.wt-pg-btn{border-radius:10px;border-color:var(--wt-border-2);background:var(--wt-surface);font-weight:500;font-size:12.5px}
+.wt-pg-btn.active{background:linear-gradient(150deg,var(--wt-primary),var(--wt-primary-deep));border-color:transparent;box-shadow:var(--wt-brand-glow)}
+.wt-pg-info{color:var(--wt-muted)}
+
+/* icons: thin 1.7 stroke */
+.wt-ic{opacity:1}
+.wt-app svg.wt-ic *{stroke-width:1.7}
+
+/* scrollbars */
+.wt-app ::-webkit-scrollbar{width:10px;height:10px}
+.wt-app ::-webkit-scrollbar-thumb{background:var(--wt-border-2);border-radius:10px;border:2px solid transparent;background-clip:content-box}
+
+@media (prefers-reduced-motion:reduce){.wt-app *,.wt-app *::before{transition:none!important;animation:none!important}}
+
+/* settings (masters) tables: first column strong, codes / numbers cyan mono, the rest secondary - not all one black */
+.wt-mtable td{color:var(--wt-text-2)}
+.wt-mtable td.wt-first{color:var(--wt-text);font-weight:500}
+.wt-mtable td.wt-first b{font-weight:500}
+.wt-mtable td.wt-num{color:var(--wt-teal)}
+.wt-mtable .wt-sr{color:var(--wt-muted)}
+.wt-subnav .wt-nav{color:var(--wt-text-2)}
+.wt-subnav .wt-nav.active{color:var(--wt-primary)}
+
 `;
 
 class WaterTankerApp {
@@ -342,6 +525,7 @@ class WaterTankerApp {
 		this.facing = this.savedFacing();
 		this.injectStyle();
 		this.render();
+		this.initSelects();
 		this.bind();
 		frappe.router.on("change", () => {
 			if (frappe.get_route()[0] !== "water_tanker_tracker") {
@@ -377,8 +561,211 @@ class WaterTankerApp {
 		}
 	}
 
+	// ---- dropdowns with a search box: this page's own look instead of the browser's select ---------------------------------
+	// Every <select> keeps working underneath (its value is read and its change event fires as before); what the person sees
+	// is a button that opens a panel with a Search box and a scrolling list, the chosen option in the theme colour.
+
+	initSelects() {
+		this.selPanel = $(`<div class="wt-sel-panel" hidden><input class="wt-sel-search" placeholder="${__("Search...")}" autocomplete="off" aria-label="${__("Search")}"><ul class="wt-sel-list" role="listbox"></ul></div>`);
+		this.$(".wt-app").append(this.selPanel);
+		this.selOpen = null;
+		this.selObserver = new MutationObserver(() => {
+			window.clearTimeout(this.selTimer);
+			this.selTimer = window.setTimeout(() => this.enhanceSelects(), 0);
+		});
+		this.selObserver.observe(this.$(".wt-app")[0], { childList: true, subtree: true });
+		this.enhanceSelects();
+		$(document)
+			.off("mousedown.wtsel")
+			.on("mousedown.wtsel", (e) => {
+				if (this.selOpen && !$(e.target).closest(".wt-sel-panel, .wt-sel-t").length) this.closeSel();
+			});
+		$(window)
+			.off("resize.wtsel scroll.wtsel")
+			.on("resize.wtsel scroll.wtsel", () => this.placeSel());
+	}
+
+	/** Give every select that has no button yet one; selects that appear later (forms, dialogs) are picked up too. */
+	enhanceSelects() {
+		this.$(".wt-app select").not("[data-wtsel]").each((_, el) => {
+			const select = $(el).attr("data-wtsel", "1").attr("tabindex", "-1");
+			select.wrap('<span class="wt-sel"></span>');
+			select.after(`<button type="button" class="wt-sel-t" aria-haspopup="listbox"><span class="wt-sel-label"></span>${ICONS.chev}</button>`);
+		});
+		this.refreshSelects();
+	}
+
+	/** Show each button's label from its select's current value (call after a value is set from code). */
+	refreshSelects() {
+		this.$(".wt-app select[data-wtsel]").each((_, el) => {
+			const select = $(el);
+			const t = select.siblings(".wt-sel-t");
+			const chosen = select.find("option:selected").first();
+			const label = t.find(".wt-sel-label");
+			const shown = chosen.length ? chosen.text() : "";
+			if (label.text() !== shown) label.text(shown);
+			t.toggleClass("ph", !select.val()).prop("disabled", !!select.prop("disabled"));
+		});
+	}
+
+	bindSelects(root) {
+		root.on("click", ".wt-sel-t", (e) => {
+			e.preventDefault();
+			this.openSel($(e.currentTarget));
+		});
+		root.on("click", ".wt-sel-opt", (e) => this.chooseSel($(e.currentTarget).attr("data-v")));
+		root.on("input", ".wt-sel-search", (e) => this.paintSelList(String($(e.currentTarget).val() || "")));
+		root.on("keydown", ".wt-sel-search", (e) => this.selKey(e));
+		root.on("keydown", ".wt-sel-t", (e) => {
+			if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
+				e.preventDefault();
+				this.openSel($(e.currentTarget));
+			}
+		});
+	}
+
+	openSel(trigger) {
+		if (trigger.prop("disabled")) return;
+		if (this.selOpen && this.selOpen.trigger[0] === trigger[0]) return this.closeSel(true);
+		this.closeSel();
+		this.selOpen = { select: trigger.siblings("select"), trigger };
+		trigger.addClass("open");
+		this.selPanel.prop("hidden", false).find(".wt-sel-search").val("");
+		this.paintSelList("");
+		this.placeSel();
+		this.selPanel.find(".wt-sel-search").trigger("focus");
+	}
+
+	closeSel(focusTrigger) {
+		if (!this.selOpen) return;
+		const { trigger } = this.selOpen;
+		trigger.removeClass("open");
+		this.selPanel.prop("hidden", true);
+		this.selOpen = null;
+		if (focusTrigger) trigger.trigger("focus");
+	}
+
+	paintSelList(term) {
+		if (!this.selOpen) return;
+		const select = this.selOpen.select;
+		const current = String(select.val() == null ? "" : select.val());
+		const needle = term.toLowerCase().trim();
+		const items = select
+			.find("option")
+			.map((_, o) => ({ v: $(o).attr("value") == null ? $(o).text() : $(o).attr("value"), t: $(o).text() }))
+			.get()
+			.filter((i) => !needle || i.t.toLowerCase().includes(needle));
+		const list = this.selPanel.find(".wt-sel-list");
+		list.html(
+			items.length
+				? items.map((i) => `<li class="wt-sel-opt ${i.v === current ? "selected" : ""}" data-v="${esc(i.v)}" role="option">${esc(i.t)}</li>`).join("")
+				: `<li class="wt-sel-none">${__("No results")}</li>`
+		);
+		const start = list.find(".selected").first().length ? list.find(".selected").first() : list.find(".wt-sel-opt").first();
+		start.addClass("active");
+		if (start[0] && start[0].scrollIntoView) start[0].scrollIntoView({ block: "nearest" });
+	}
+
+	selKey(e) {
+		const list = this.selPanel.find(".wt-sel-list");
+		const opts = list.find(".wt-sel-opt");
+		const at = opts.index(list.find(".wt-sel-opt.active"));
+		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+			e.preventDefault();
+			const next = opts.eq(Math.max(0, Math.min(opts.length - 1, at + (e.key === "ArrowDown" ? 1 : -1))));
+			opts.removeClass("active");
+			next.addClass("active");
+			if (next[0] && next[0].scrollIntoView) next[0].scrollIntoView({ block: "nearest" });
+		} else if (e.key === "Enter") {
+			e.preventDefault();
+			const pick = list.find(".wt-sel-opt.active");
+			if (pick.length) this.chooseSel(pick.attr("data-v"));
+		} else if (e.key === "Escape" || e.key === "Tab") {
+			this.closeSel(e.key === "Escape");
+		}
+	}
+
+	chooseSel(value) {
+		if (!this.selOpen) return;
+		const { select } = this.selOpen;
+		select.val(value).trigger("change");
+		this.closeSel(true);
+		this.refreshSelects();
+	}
+
+	/** The panel sits under its button (or above it when there is no room), as wide as the button. */
+	placeSel() {
+		if (!this.selOpen) return;
+		const rect = this.selOpen.trigger[0].getBoundingClientRect();
+		const below = window.innerHeight - rect.bottom;
+		const above = rect.top;
+		const up = below < 260 && above > below;
+		this.selPanel.css({
+			left: Math.max(8, rect.left),
+			width: Math.max(rect.width, 220),
+			top: up ? "auto" : rect.bottom + 4,
+			bottom: up ? window.innerHeight - rect.top + 4 : "auto",
+		});
+		this.selPanel.find(".wt-sel-list").css("max-height", Math.max(120, Math.min(260, (up ? above : below) - 80)));
+	}
+
+	/** Values set from code (a form filled, a filter reset) have no event: keep the buttons' labels in step while the page is open. */
+	startSelSync() {
+		if (this.selSync) return;
+		this.selSync = window.setInterval(() => {
+			if (!document.hidden) this.refreshSelects();
+		}, 400);
+	}
+
+	stopSelSync() {
+		window.clearInterval(this.selSync);
+		this.selSync = null;
+	}
+
 	setChrome(on) {
 		document.body.classList.toggle("wt-active", on);
+		this.applyTheme(on);
+		if (on) this.startSelSync();
+		else {
+			this.stopSelSync();
+			this.closeSel();
+		}
+	}
+
+	/** DUX light / dark. The choice is remembered per browser (shared with the other DUX pages); the desk's own theme comes back when this page is left. */
+	applyTheme(on) {
+		const root = document.documentElement;
+		if (on) {
+			if (this.deskTheme === undefined) this.deskTheme = root.getAttribute("data-theme");
+			let saved = "";
+			try {
+				saved = window.localStorage.getItem("dux_theme") || "";
+			} catch (e) {
+				saved = "";
+			}
+			if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+		} else if (this.deskTheme !== undefined) {
+			if (this.deskTheme === null) root.removeAttribute("data-theme");
+			else root.setAttribute("data-theme", this.deskTheme);
+			this.deskTheme = undefined;
+		}
+		this.paintThemeBtn();
+	}
+
+	paintThemeBtn() {
+		const dark = document.documentElement.getAttribute("data-theme") === "dark";
+		this.$(".wt-theme").html(dark ? ICONS.sun : ICONS.moon).attr("title", dark ? __("Light theme") : __("Dark theme"));
+	}
+
+	toggleTheme() {
+		const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+		document.documentElement.setAttribute("data-theme", next);
+		try {
+			window.localStorage.setItem("dux_theme", next);
+		} catch (e) {
+			/* private window: the choice just is not remembered */
+		}
+		this.paintThemeBtn();
 	}
 
 	injectStyle() {
@@ -387,6 +774,13 @@ class WaterTankerApp {
 		style.id = "wt-style";
 		style.textContent = WT_CSS;
 		document.head.appendChild(style);
+		if (!document.getElementById("dux-fonts")) {
+			const link = document.createElement("link");
+			link.id = "dux-fonts";
+			link.rel = "stylesheet";
+			link.href = "https://fonts.googleapis.com/css2?family=Geist:wght@300;400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap";
+			document.head.appendChild(link);
+		}
 	}
 
 	initials() {
@@ -422,6 +816,7 @@ class WaterTankerApp {
 							<button type="button" class="wt-menu" aria-label="${__("Menu")}">☰</button>
 							<div class="wt-crumb"><span class="wt-crumb-root">${__("Water Tanker Tracker")}</span><span class="wt-crumb-sep">›</span><b class="wt-crumb-now">${__(TITLES.dashboard)}</b></div>
 							<div class="wt-spacer"></div>
+							<button type="button" class="wt-nb-btn wt-theme" aria-label="${__("Theme")}"></button>
 							<button type="button" class="wt-nb-btn wt-refresh" title="${__("Refresh")}" aria-label="${__("Refresh")}">${ICONS.refresh}</button>
 							<span class="wt-avatar" title="${esc(frappe.session.user_fullname || frappe.session.user)}">${esc(this.initials())}</span>
 						</div>
@@ -493,10 +888,12 @@ class WaterTankerApp {
 
 	bind() {
 		const root = $(this.page.main);
+		this.bindSelects(root);
 		root.on("click", ".wt-nav[data-tab]", (e) => this.open($(e.currentTarget).data("tab")));
 		root.on("click", ".wt-menu, .wt-backdrop", () => this.$(".wt-app").toggleClass("wt-menu-open"));
 		root.on("click", ".wt-logout", () => this.confirm(__("Log out of Water Tanker Tracker?"), () => frappe.app.logout()));
 		root.on("click", ".wt-refresh", () => this.refresh());
+		root.on("click", ".wt-theme", () => this.toggleTheme());
 		root.on("click", ".wt-new", () => this.newEntry());
 		root.on("click", ".wt-back", () => this.open("register"));
 		root.on("click", ".wt-group", () => {
@@ -598,6 +995,7 @@ class WaterTankerApp {
 	}
 
 	open(tab) {
+		this.closeSel();
 		this.tab = tab;
 		this.$(".wt-app").removeClass("wt-menu-open");
 		this.$(".wt-nav").removeClass("active");
@@ -765,7 +1163,7 @@ class WaterTankerApp {
 	entryRow(e, full) {
 		const cells = [
 			`<td class="wt-num" data-label="${__("Date & Time")}">${esc(fmtDT(e.arrival_datetime))}</td>`,
-			`<td data-label="${__("Vehicle")}"><b>${esc(e.vehicle_number)}</b></td>`,
+			`<td data-label="${__("Vehicle")}"><b class="wt-id">${esc(e.vehicle_number)}</b></td>`,
 			`<td data-label="${__("Water Supplier")}">${esc(e.water_supplier)}</td>`,
 			`<td data-label="${__("Tank Level")}">${levelPill(e.tank_level_check)}</td>`,
 			`<td data-label="${__("Photo")}">${this.photoCell(e)}</td>`,
@@ -1207,7 +1605,7 @@ class WaterTankerApp {
 					<input class="wt-search wt-master-search" placeholder="${__("Search…")}" style="min-width:200px">
 					<button type="button" class="wt-btn-primary wt-btn-sm wt-master-add" data-add="${kind}">${ICONS.plus}${suppliers ? __("Add Supplier") : __("Add Water Tanker")}</button>
 				</div></div>
-			<div class="wt-table-wrap"><table class="wt-table"><thead><tr>${
+			<div class="wt-table-wrap"><table class="wt-table wt-mtable"><thead><tr>${
 				suppliers
 					? `<th>${__("Water Supplier Name")}</th><th>${__("Contact Number")}</th><th>${__("Address")}</th><th>${__("Status")}</th><th></th>`
 					: `<th>${__("Vehicle Number")}</th><th>${__("Water Supplier")}</th><th>${__("Water Tanker Capacity")}</th><th>${__("Capacity UOM")}</th><th></th>`
@@ -1215,8 +1613,8 @@ class WaterTankerApp {
 	}
 
 	masterActions(kind, key) {
-		const edit = this.can(kind, "write") ? `<button type="button" data-edit="${kind}" data-key="${esc(key)}" title="${__("Edit")}">✎</button>` : "";
-		const del = this.can(kind, "delete") ? `<button type="button" class="danger" data-del="${kind}" data-key="${esc(key)}" title="${__("Delete")}">🗑</button>` : "";
+		const edit = this.can(kind, "write") ? `<button type="button" data-edit="${kind}" data-key="${esc(key)}" title="${__("Edit")}" aria-label="${__("Edit")}">${ICONS.edit}</button>` : "";
+		const del = this.can(kind, "delete") ? `<button type="button" class="danger" data-del="${kind}" data-key="${esc(key)}" title="${__("Delete")}" aria-label="${__("Delete")}">${ICONS.trash}</button>` : "";
 		return `<div class="wt-act">${edit}${del}</div>`;
 	}
 
@@ -1234,8 +1632,8 @@ class WaterTankerApp {
 				? this.masters[kind]
 						.map((r) =>
 							kind === "suppliers"
-								? `<tr><td><b>${esc(r.supplier_name)}</b></td><td>${esc(r.contact_number || "—")}</td><td class="wt-wrap">${esc(r.address || "—")}</td><td>${r.disabled ? pill(__("Disabled"), "red") : pill(__("Active"), "teal")}</td><td>${this.masterActions(kind, r.name)}</td></tr>`
-								: `<tr><td><b>${esc(r.vehicle_number)}</b></td><td>${esc(r.water_supplier || "—")}</td><td class="wt-num">${r.tanker_capacity ? esc(Number(r.tanker_capacity).toLocaleString("en-IN")) : "—"}</td><td>${esc(r.capacity_uom || "—")}</td><td>${this.masterActions(kind, r.name)}</td></tr>`
+								? `<tr><td class="wt-first"><b>${esc(r.supplier_name)}</b></td><td class="wt-num">${esc(r.contact_number || "—")}</td><td class="wt-wrap">${esc(r.address || "—")}</td><td>${r.disabled ? pill(__("Disabled"), "red") : pill(__("Active"), "teal")}</td><td>${this.masterActions(kind, r.name)}</td></tr>`
+								: `<tr><td class="wt-first"><b class="wt-id">${esc(r.vehicle_number)}</b></td><td>${esc(r.water_supplier || "—")}</td><td class="wt-num">${r.tanker_capacity ? esc(Number(r.tanker_capacity).toLocaleString("en-IN")) : "—"}</td><td>${esc(r.capacity_uom || "—")}</td><td>${this.masterActions(kind, r.name)}</td></tr>`
 						)
 						.join("")
 				: `<tr><td class="wt-empty" colspan="5">${kind === "suppliers" ? __("No water suppliers yet") : __("No water tankers yet")}</td></tr>`
