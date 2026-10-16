@@ -413,6 +413,8 @@ body.wt-active:has(.wt-app){background:var(--wt-bg,#F3F4F7)}
 .wt-rep-card-v{font-weight:600;font-size:15.5px;letter-spacing:-.02em}
 .wt-sr{font-weight:400}
 .wt-datebox{font-weight:500;color:var(--wt-teal)}
+input.wt-dash-date{display:block;cursor:pointer;outline:none;font-size:13px;min-width:150px;box-sizing:border-box}
+input.wt-dash-date:focus{border-color:var(--wt-teal)}
 .wt-table .wt-num,.wt-table .wt-amt{font-size:12.5px}
 
 /* cards: hairline + ambient shadow + lit top edge, hairline gradient accent on filter bar and tables */
@@ -843,7 +845,7 @@ class WaterTankerApp {
 				<h2 class="wt-hello">${__("Good")} <span class="wt-grad">${esc(word)}</span>, ${esc(name)}</h2>
 			</div>
 			<div class="wt-greet-r">
-				<div class="wt-today"><div class="wt-eyebrow">${__("Today")}</div><div class="wt-datebox">${esc(String(frappe.datetime.get_today()).split("-").reverse().join("/"))}</div></div>
+				<div class="wt-today"><div class="wt-eyebrow wt-dash-date-l">${this.dashDate && this.dashDate !== frappe.datetime.get_today() ? __("Date") : __("Today")}</div><input type="date" class="wt-datebox wt-dash-date" value="${esc(this.dashDate || frappe.datetime.get_today())}"></div>
 			</div>`;
 	}
 
@@ -959,6 +961,13 @@ class WaterTankerApp {
 				return;
 			}
 			this.downloadImage(entry, button);
+		});
+		root.on("change", ".wt-dash-date", (e) => {
+			const picked = String($(e.currentTarget).val() || "");
+			this.dashDate = picked && picked !== frappe.datetime.get_today() ? picked : "";
+			this.$(".wt-dash-date-l").text(this.dashDate ? __("Date") : __("Today"));
+			if (!picked) $(e.currentTarget).val(frappe.datetime.get_today());
+			this.loadDashboard();
 		});
 		root.on("change", ".wt-level-filter, .wt-sup-filter, .wt-reg-from, .wt-reg-to", (e) => {
 			const box = $(e.currentTarget);
@@ -1127,7 +1136,8 @@ class WaterTankerApp {
 	async loadDashboard() {
 		let data;
 		try {
-			data = await this.call("dashboard", { recent: 8 });
+			const day = this.dashDate || frappe.datetime.get_today();
+			data = await this.call("dashboard", { recent: 8, from_date: day, to_date: day });
 		} catch (e) {
 			return;
 		}
@@ -1136,7 +1146,7 @@ class WaterTankerApp {
 		this.$("[data-recent]").html(
 			(data.recent || []).length
 				? data.recent.map((e) => this.entryRow(e, false)).join("")
-				: `<tr><td class="wt-empty" colspan="5">${__("No water tanker entries yet")}</td></tr>`
+				: `<tr><td class="wt-empty" colspan="5">${this.dashDate ? __("No water tanker entries on this date") : __("No water tanker entries yet")}</td></tr>`
 		);
 	}
 
