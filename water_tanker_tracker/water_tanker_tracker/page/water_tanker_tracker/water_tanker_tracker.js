@@ -99,6 +99,7 @@ background:var(--wt-bg);border-radius:0;padding:0}
 .wt-logo{display:block;width:100%;max-width:168px;height:auto;margin:6px 10px 10px}
 [data-theme=dark] .wt-logo{filter:invert(1)}
 .wt-brand{font-size:13px;font-weight:700;padding:10px 10px 12px;color:var(--wt-primary);border-top:1px solid var(--wt-border);margin-bottom:4px}
+.wt-side-title{font-size:18px;font-weight:800;line-height:1.25;letter-spacing:-.01em;color:var(--wt-text);padding:10px 10px 16px;margin:0 0 8px;border-bottom:1px solid var(--wt-border)}
 .wt-nav{display:flex;align-items:center;justify-content:space-between;min-height:40px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:var(--wt-text);font-size:13px;font-weight:600;text-align:left;cursor:pointer;width:100%}
 .wt-nav:hover{background:var(--wt-primary-soft)}
 .wt-nav.active{background:var(--wt-primary-soft);color:var(--wt-primary)}
@@ -797,8 +798,7 @@ class WaterTankerApp {
 				<div class="wt-backdrop"></div>
 				<div class="wt-shell">
 					<aside class="wt-nav-side">
-						<img class="wt-logo" src="${WT_LOGO}" alt="DUX Digitech">
-						<div class="wt-brand">${__("Water Tanker Tracker")}</div>
+						<div class="wt-side-title">${__("Water Tanker Tracker")}</div>
 						<button type="button" class="wt-nav active" data-tab="dashboard"><span class="wt-nav-l">${ICONS.dashboard}${__("Dashboard")}</span></button>
 						<button type="button" class="wt-nav" data-tab="register"><span class="wt-nav-l">${ICONS.register}${__("Water Tanker Register")}</span></button>
 						<button type="button" class="wt-nav" data-tab="report"><span class="wt-nav-l">${ICONS.report}${__("Report")}</span></button>
