@@ -74,7 +74,8 @@ const WT_CSS = `
    page's markup exists, so it can never reach the login page or any other app's pages. */
 body.wt-active:has(.wt-app) .navbar,
 body.wt-active:has(.wt-app) .page-head,
-body.wt-active:has(.wt-app) .layout-side-section{display:none!important}
+body.wt-active:has(.wt-app) .layout-side-section,
+body.wt-active:has(.wt-app) .body-sidebar-container{display:none!important}
 body.wt-active:has(.wt-app) .page-container,
 body.wt-active:has(.wt-app) .layout-main-section-wrapper,
 body.wt-active:has(.wt-app) .layout-main-section,

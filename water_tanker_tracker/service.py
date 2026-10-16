@@ -134,9 +134,24 @@ def bootstrap():
 # ---- dashboard and register ----------------------------------------------------------------------------
 
 
-def _count(filters):
-	rows = frappe.get_list(ENTRY, filters=filters, fields=["count(name) as n"])
-	return cint(rows[0].n) if rows else 0
+def _count(filters, or_filters=None):
+	"""How many entries this user may see.
+
+	Frappe 15 takes "count(name) as n" written as a string in `fields`. Frappe 16 refuses SQL functions written as
+	strings ("SQL functions are not allowed as strings in SELECT") and wants {"COUNT": "name", "as": "n"}. The form
+	is chosen from the running version; counting the names themselves is the fallback that works anywhere.
+	"""
+	major = cint(str(frappe.__version__).split(".")[0])
+	fields = [{"COUNT": "name", "as": "n"}] if major >= 16 else ["count(name) as n"]
+	queued = len(frappe.local.message_log)
+	try:
+		rows = frappe.get_list(ENTRY, filters=filters, or_filters=or_filters, fields=fields)
+		return cint(rows[0].n) if rows else 0
+	except frappe.PermissionError:
+		raise
+	except Exception:
+		del frappe.local.message_log[queued:]  # the refused form leaves its message queued; do not show it
+		return len(frappe.get_list(ENTRY, filters=filters, or_filters=or_filters, pluck="name", limit_page_length=0))
 
 
 def _day(value, label):
@@ -214,7 +229,7 @@ def _entry_query(search=None, level=None, supplier=None, from_date=None, to_date
 def list_entries(search=None, level=None, supplier=None, from_date=None, to_date=None, start=0, page_length=PAGE_LENGTH):
 	frappe.has_permission(ENTRY, "read", throw=True)
 	filters, or_filters = _entry_query(search, level, supplier, from_date, to_date)
-	total = frappe.get_list(ENTRY, filters=filters, or_filters=or_filters, fields=["count(name) as n"])
+	total = _count(filters, or_filters)
 	rows = frappe.get_list(
 		ENTRY,
 		filters=filters,
@@ -224,7 +239,7 @@ def list_entries(search=None, level=None, supplier=None, from_date=None, to_date
 		start=cint(start),
 		page_length=min(cint(page_length) or PAGE_LENGTH, 100),
 	)
-	return {"total": cint(total[0].n) if total else 0, "rows": [_row(r) for r in rows]}
+	return {"total": total, "rows": [_row(r) for r in rows]}
 
 
 @frappe.whitelist()
