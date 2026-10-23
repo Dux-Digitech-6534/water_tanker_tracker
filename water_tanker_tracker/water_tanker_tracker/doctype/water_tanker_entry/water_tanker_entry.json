@@ -38,7 +38,15 @@
   "record_section",
   "status",
   "created_by",
-  "client_ref"
+  "client_ref",
+  "approval_section",
+  "rejected",
+  "rejection_reason",
+  "rejected_by",
+  "rejected_on",
+  "column_break_approval",
+  "cancel_reason",
+  "amended_from"
  ],
  "fields": [
   {
@@ -254,11 +262,71 @@
    "no_copy": 1,
    "read_only": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Approval"
+  },
+  {
+   "fieldname": "rejected",
+   "fieldtype": "Check",
+   "label": "Rejected",
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "read_only": 1,
+   "no_copy": 1,
+   "depends_on": "eval:doc.rejection_reason"
+  },
+  {
+   "fieldname": "rejected_by",
+   "fieldtype": "Link",
+   "label": "Rejected By",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1,
+   "depends_on": "eval:doc.rejected_by"
+  },
+  {
+   "fieldname": "rejected_on",
+   "fieldtype": "Datetime",
+   "label": "Rejected On",
+   "read_only": 1,
+   "no_copy": 1,
+   "depends_on": "eval:doc.rejected_on"
+  },
+  {
+   "fieldname": "column_break_approval",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancellation Reason",
+   "read_only": 1,
+   "no_copy": 1,
+   "depends_on": "eval:doc.cancel_reason"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Water Tanker Entry",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-23 09:27:15.000000",
+ "modified": "2026-10-23 09:53:03.000000",
  "modified_by": "Administrator",
  "module": "Water Tanker Tracker",
  "name": "Water Tanker Entry",
