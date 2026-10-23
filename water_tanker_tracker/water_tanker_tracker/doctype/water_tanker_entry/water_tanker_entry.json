@@ -258,7 +258,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-10 11:07:59.576879",
+ "modified": "2026-10-23 09:21:34.000000",
  "modified_by": "Administrator",
  "module": "Water Tanker Tracker",
  "name": "Water Tanker Entry",
@@ -294,7 +294,39 @@
    "export": 1,
    "print": 1,
    "email": 1,
-   "share": 1
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "WT Guard",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "if_owner": 1
+  },
+  {
+   "role": "WT Observer",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "WT Man",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
   }
  ],
  "search_fields": "vehicle_number,water_supplier",
@@ -302,5 +334,6 @@
  "sort_order": "DESC",
  "states": [],
  "title_field": "vehicle_number",
- "track_changes": 1
+ "track_changes": 1,
+ "is_submittable": 1
 }

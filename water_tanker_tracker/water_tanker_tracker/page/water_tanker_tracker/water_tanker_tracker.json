@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2026-10-09 10:00:00.000000",
+ "modified": "2026-10-23 09:21:34.000000",
  "modified_by": "Administrator",
  "module": "Water Tanker Tracker",
  "name": "water_tanker_tracker",
@@ -16,6 +16,18 @@
   },
   {
    "role": "Water Tanker User"
+  },
+  {
+   "role": "Water Tanker Manager"
+  },
+  {
+   "role": "WT Guard"
+  },
+  {
+   "role": "WT Observer"
+  },
+  {
+   "role": "WT Man"
   }
  ],
  "standard": "Yes",

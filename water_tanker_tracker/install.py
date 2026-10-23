@@ -4,6 +4,10 @@ import frappe
 def after_install():
 	ensure_role()
 	ensure_manager_role()
+	# WT Guard / WT Observer / WT Man and their permissions on this app's doctypes
+	from water_tanker_tracker.patches.setup_approval_roles import setup
+
+	setup()
 
 
 def ensure_role():
