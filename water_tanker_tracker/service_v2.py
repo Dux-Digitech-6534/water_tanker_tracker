@@ -434,7 +434,7 @@ def save_entry(data):
 			"expected_quantity": _number(data.get("expected_quantity"), _("Expected Quantity")),
 			"tank_level_check": level,
 			"checked_by": _clean(data.get("checked_by")) or None,
-			"observed_quantity": _number(data.get("observed_quantity"), _("Observed Quantity")),
+			"observed_quantity": _number(data.get("observed_quantity"), _("Water Tanker Capacity")),
 			"inspection_remarks": _text(data.get("inspection_remarks")) or None,
 			"tanker_photo": _text(data.get("tanker_photo")),
 			"tanker_photo_stamped": _text(data.get("tanker_photo_stamped")) or None,
@@ -666,7 +666,7 @@ def _report_html(rows, summary, filter_text):
 	e = frappe.utils.escape_html
 	head = [
 		_("Date & Time"), _("Vehicle"), _("Water Supplier"), _("Driver"), _("Tank Level"),
-		_("Expected"), _("Observed"), _("Checked By"), _("Remarks"), _("GPS Location"), _("Photos"),
+		_("Expected"), _("Capacity"), _("Checked By"), _("Remarks"), _("GPS Location"), _("Photos"),
 	]
 	body = []
 	for n, r in enumerate(rows):
@@ -781,7 +781,7 @@ def export_excel(search=None, level=None, supplier=None, from_date=None, to_date
 	summary = _summary(rows)
 	head = [
 		_("Date & Time"), _("Vehicle"), _("Water Supplier"), _("Driver"), _("Tank Level"),
-		_("Expected Quantity"), _("Observed Quantity"), _("Checked By"), _("Inspection Remarks"), _("Tanker"),
+		_("Expected Quantity"), _("Water Tanker Capacity"), _("Checked By"), _("Inspection Remarks"), _("Tanker"),
 		_("Photo Captured"), _("Latitude"), _("Longitude"), _("Google Maps"), _("Location Address"),
 		_("Water Tanker Photo"), _("Tank Level Photo"),
 	]

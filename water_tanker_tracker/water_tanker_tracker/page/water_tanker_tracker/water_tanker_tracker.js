@@ -1295,7 +1295,7 @@ class WaterTankerApp {
 						<option value="Not Checked">${__("Not Checked")}</option>
 					</select></label>
 					${field(__("Checked By (Optional)"), "checked_by", `value="${esc(this.boot.user || frappe.session.user_fullname || "")}"`)}
-					${field(__("Observed Quantity (Optional)"), "observed_quantity", `type="number" inputmode="decimal" min="0" step="any"`)}
+					${field(__("Water Tanker Capacity (Optional)"), "observed_quantity", `type="number" inputmode="decimal" min="0" step="any"`)}
 					<label class="wt-field full">${__("Inspection Remarks (Optional)")}<textarea data-f="inspection_remarks" rows="3"></textarea></label>
 				</div>
 
@@ -1497,7 +1497,7 @@ class WaterTankerApp {
 				${stat("Full", ICONS.drop, "teal", __("Full Water Tankers"))}
 				${stat("Partial", ICONS.alert, "amber", __("Partial Level Water Tankers"))}
 			</div>
-			<div class="wt-table-wrap"><table class="wt-table"><thead><tr><th>${__("Date & Time")}</th><th>${__("Vehicle")}</th><th>${__("Water Supplier")}</th><th>${__("Driver")}</th><th>${__("Tank Level")}</th><th>${__("Expected")}</th><th>${__("Observed")}</th><th>${__("Checked By")}</th><th>${__("Remarks")}</th><th>${__("GPS Location")}</th><th>${__("Photos")}</th></tr></thead>
+			<div class="wt-table-wrap"><table class="wt-table"><thead><tr><th>${__("Date & Time")}</th><th>${__("Vehicle")}</th><th>${__("Water Supplier")}</th><th>${__("Driver")}</th><th>${__("Tank Level")}</th><th>${__("Expected")}</th><th>${__("Capacity")}</th><th>${__("Checked By")}</th><th>${__("Remarks")}</th><th>${__("GPS Location")}</th><th>${__("Photos")}</th></tr></thead>
 				<tbody data-report></tbody><tfoot data-report-foot></tfoot></table></div>
 			<p class="wt-tiny wt-rp-note" style="margin:10px 0 0" hidden></p>`;
 	}
@@ -1797,7 +1797,7 @@ class WaterTankerApp {
 			<div class="wt-facts">
 				${this.fact(__("Tank Level Check"), levelPill(e.tank_level_check))}
 				${this.fact(__("Checked By"), esc(e.checked_by))}
-				${this.fact(__("Observed Quantity"), e.observed_quantity == null ? "" : esc(e.observed_quantity))}
+				${this.fact(__("Water Tanker Capacity"), e.observed_quantity == null ? "" : esc(e.observed_quantity))}
 				${this.fact(__("Inspection Remarks"), esc(e.inspection_remarks).replace(/\n/g, "<br>"), true)}
 			</div>
 			<div class="wt-sec">${__("Photo Evidence")}</div>
@@ -1901,7 +1901,7 @@ class WaterTankerApp {
 			<div class="wt-form" style="margin-top:12px">
 				<label class="wt-field">${__("Tanker")}<select data-e="tanker">${["", "RGI Group", "Rented"].map((t) => `<option value="${t}" ${t === (e.tanker || "") ? "selected" : ""}>${t ? __(t) : __("Select tanker")}</option>`).join("")}</select></label>
 				${f(__("Checked By"), "checked_by", e.checked_by)}
-				${f(__("Observed Quantity"), "observed_quantity", e.observed_quantity, 'type="number" inputmode="decimal" min="0" step="any"')}
+				${f(__("Water Tanker Capacity"), "observed_quantity", e.observed_quantity, 'type="number" inputmode="decimal" min="0" step="any"')}
 				${f(__("Driver Name"), "driver_name", e.driver_name)}
 				${f(__("Expected Quantity"), "expected_quantity", e.expected_quantity, 'type="number" inputmode="decimal" min="0" step="any"')}
 				<label class="wt-field wide">${__("Inspection Remarks")}<textarea data-e="inspection_remarks" rows="3">${esc(e.inspection_remarks || "")}</textarea></label>
@@ -2101,7 +2101,7 @@ class WaterTankerApp {
 		facts([
 			[__("Tank Level Check"), e.tank_level_check],
 			[__("Checked By"), e.checked_by],
-			[__("Observed Quantity"), qty(e.observed_quantity)],
+			[__("Water Tanker Capacity"), qty(e.observed_quantity)],
 			[__("Inspection Remarks"), e.inspection_remarks, true],
 		]);
 		section(__("Capture & Location"));
